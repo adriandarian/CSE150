@@ -13,7 +13,15 @@ public class Communicator {
   /**
    * Allocate a new communicator.
    */
+  
+  private int wait_listeners = 0;
+  private int speakers = 0;
+  
+  
   public Communicator() {
+    lock = 
+    listeners = 
+    speaker =   
   }
 
   /**
