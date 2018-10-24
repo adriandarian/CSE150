@@ -14,203 +14,197 @@ import java.io.IOException;
  * operating system's file system.
  */
 public class StubFileSystem implements FileSystem {
-    /**
-     * Allocate a new stub file system.
-     *
-     * @param	privilege      	encapsulates privileged access to the Nachos
-     *				machine.
-     * @param	directory	the root directory of the stub file system.
-     */
-    public StubFileSystem(Privilege privilege, File directory) {
-	this.privilege = privilege;
-	this.directory = directory;
-    }
-    
-    public OpenFile open(String name, boolean truncate) {
-	if (!checkName(name))
-	    return null;
-	
-	delay();
-	    
-	try {
-	    return new StubOpenFile(name, truncate);
-	}
-	catch (IOException e) {
-	    return null;
-	}
-    }
-    
-    public boolean remove(String name) {
-	if (!checkName(name))
-	    return false;
+  /**
+   * Allocate a new stub file system.
+   *
+   * @param privilege encapsulates privileged access to the Nachos machine.
+   * @param directory the root directory of the stub file system.
+   */
+  public StubFileSystem(Privilege privilege, File directory) {
+    this.privilege = privilege;
+    this.directory = directory;
+  }
 
-	delay();
+  public OpenFile open(String name, boolean truncate) {
+    if (!checkName(name))
+      return null;
 
-	FileRemover fr = new FileRemover(new File(directory, name));
-	privilege.doPrivileged(fr);
-	return fr.successful;
+    delay();
+
+    try {
+      return new StubOpenFile(name, truncate);
+    } catch (IOException e) {
+      return null;
     }
+  }
 
-    private class FileRemover implements Runnable {
-	public FileRemover(File f) {
-	    this.f = f;
-	}
-	
-	public void run() {
-	    successful = f.delete();
-	}
-	
-	public boolean successful = false;
-	private File f;
+  public boolean remove(String name) {
+    if (!checkName(name))
+      return false;
+
+    delay();
+
+    FileRemover fr = new FileRemover(new File(directory, name));
+    privilege.doPrivileged(fr);
+    return fr.successful;
+  }
+
+  private class FileRemover implements Runnable {
+    public FileRemover(File f) {
+      this.f = f;
     }
 
-    private void delay() {
-	long time = Machine.timer().getTime();
-	int amount = 1000;
-	ThreadedKernel.alarm.waitUntil(amount);
-	Lib.assertTrue(Machine.timer().getTime() >= time+amount);
+    public void run() {
+      successful = f.delete();
     }
 
-    private class StubOpenFile extends OpenFileWithPosition {
-	StubOpenFile(final String name, final boolean truncate)
-	    throws IOException {
-	    super(StubFileSystem.this, name);
+    public boolean successful = false;
+    private File f;
+  }
 
-	    final File f = new File(directory, name);
+  private void delay() {
+    long time = Machine.timer().getTime();
+    int amount = 1000;
+    ThreadedKernel.alarm.waitUntil(amount);
+    Lib.assertTrue(Machine.timer().getTime() >= time + amount);
+  }
 
-	    if (openCount == maxOpenFiles)
-		throw new IOException();
+  private class StubOpenFile extends OpenFileWithPosition {
+    StubOpenFile(final String name, final boolean truncate) throws IOException {
+      super(StubFileSystem.this, name);
 
-	    privilege.doPrivileged(new Runnable() {
-		public void run() { getRandomAccessFile(f, truncate); }
-	    });
+      final File f = new File(directory, name);
 
-	    if (file == null)
-		throw new IOException();
+      if (openCount == maxOpenFiles)
+        throw new IOException();
 
-	    open = true;
-	    openCount++;
-	}
+      privilege.doPrivileged(new Runnable() {
+        public void run() {
+          getRandomAccessFile(f, truncate);
+        }
+      });
 
-	private void getRandomAccessFile(File f, boolean truncate) {
-	    try {
-		if (!truncate && !f.exists())
-		    return;
+      if (file == null)
+        throw new IOException();
 
-		file = new RandomAccessFile(f, "rw");
-
-		if (truncate)
-		    file.setLength(0);
-	    }
-	    catch (IOException e) {
-	    }
-	}
-
-	public int read(int pos, byte[] buf, int offset, int length) {
-	    if (!open)
-		return -1;
-	    
-	    try {
-		delay();
-
-		file.seek(pos);
-		return Math.max(0, file.read(buf, offset, length));
-	    }
-	    catch (IOException e) {
-		return -1;
-	    }
-	}
-	
-	public int write(int pos, byte[] buf, int offset, int length) {
-	    if (!open)
-		return -1;
-	    
-	    try {
-		delay();
-		
-		file.seek(pos);
-		file.write(buf, offset, length);
-		return length;
-	    }
-	    catch (IOException e) {
-		return -1;
-	    }
-	}
-
-	public int length() {
-	    try {
-		return (int) file.length();
-	    }
-	    catch (IOException e) {
-		return -1;
-	    }
-	}
-
-	public void close() {
-	    if (open) {
-		open = false;
-		openCount--;
-	    }
-		
-	    try {
-		file.close();
-	    }
-	    catch (IOException e) {
-	    }
-	}
-
-	private RandomAccessFile file = null;
-	private boolean open = false;
+      open = true;
+      openCount++;
     }
 
-    private int openCount = 0;
-    private static final int maxOpenFiles = 16;
-    
-    private Privilege privilege;
-    private File directory;
+    private void getRandomAccessFile(File f, boolean truncate) {
+      try {
+        if (!truncate && !f.exists())
+          return;
 
-    private static boolean checkName(String name) {
-	char[] chars = name.toCharArray();
+        file = new RandomAccessFile(f, "rw");
 
-	for (int i=0; i<chars.length; i++) {
-	    if (chars[i] < 0 || chars[i] >= allowedFileNameCharacters.length)
-		return false;
-	    if (!allowedFileNameCharacters[(int) chars[i]])
-		return false;
-	}
-	return true;
+        if (truncate)
+          file.setLength(0);
+      } catch (IOException e) {
+      }
     }
 
-    private static boolean[] allowedFileNameCharacters = new boolean[0x80];
+    public int read(int pos, byte[] buf, int offset, int length) {
+      if (!open)
+        return -1;
 
-    private static void reject(char c) {
-	allowedFileNameCharacters[c] = false;
+      try {
+        delay();
+
+        file.seek(pos);
+        return Math.max(0, file.read(buf, offset, length));
+      } catch (IOException e) {
+        return -1;
+      }
     }
 
-    private static void allow(char c) {
-	allowedFileNameCharacters[c] = true;
+    public int write(int pos, byte[] buf, int offset, int length) {
+      if (!open)
+        return -1;
+
+      try {
+        delay();
+
+        file.seek(pos);
+        file.write(buf, offset, length);
+        return length;
+      } catch (IOException e) {
+        return -1;
+      }
     }
 
-    private static void reject(char first, char last) {
-	for (char c=first; c<=last; c++)
-	    allowedFileNameCharacters[c] = false;
+    public int length() {
+      try {
+        return (int) file.length();
+      } catch (IOException e) {
+        return -1;
+      }
     }
 
-    private static void allow(char first, char last) {
-	for (char c=first; c<=last; c++)
-	    allowedFileNameCharacters[c] = true;
+    public void close() {
+      if (open) {
+        open = false;
+        openCount--;
+      }
+
+      try {
+        file.close();
+      } catch (IOException e) {
+      }
     }
 
-    static {
-	reject((char) 0x00, (char) 0x7F);
-	
-	allow('A', 'Z');
-	allow('a', 'z');
-	allow('0', '9');
-	
-	allow('-');
-	allow('_');
-	allow('.');
-	allow(',');
+    private RandomAccessFile file = null;
+    private boolean open = false;
+  }
+
+  private int openCount = 0;
+  private static final int maxOpenFiles = 16;
+
+  private Privilege privilege;
+  private File directory;
+
+  private static boolean checkName(String name) {
+    char[] chars = name.toCharArray();
+
+    for (int i = 0; i < chars.length; i++) {
+      if (chars[i] < 0 || chars[i] >= allowedFileNameCharacters.length)
+        return false;
+      if (!allowedFileNameCharacters[(int) chars[i]])
+        return false;
     }
+    return true;
+  }
+
+  private static boolean[] allowedFileNameCharacters = new boolean[0x80];
+
+  private static void reject(char c) {
+    allowedFileNameCharacters[c] = false;
+  }
+
+  private static void allow(char c) {
+    allowedFileNameCharacters[c] = true;
+  }
+
+  private static void reject(char first, char last) {
+    for (char c = first; c <= last; c++)
+      allowedFileNameCharacters[c] = false;
+  }
+
+  private static void allow(char first, char last) {
+    for (char c = first; c <= last; c++)
+      allowedFileNameCharacters[c] = true;
+  }
+
+  static {
+    reject((char) 0x00, (char) 0x7F);
+
+    allow('A', 'Z');
+    allow('a', 'z');
+    allow('0', '9');
+
+    allow('-');
+    allow('_');
+    allow('.');
+    allow(',');
+  }
 }

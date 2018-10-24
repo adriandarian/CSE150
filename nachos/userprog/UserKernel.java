@@ -8,108 +8,108 @@ import nachos.userprog.*;
  * A kernel that can support multiple user processes.
  */
 public class UserKernel extends ThreadedKernel {
-    /**
-     * Allocate a new user kernel.
-     */
-    public UserKernel() {
-	super();
-    }
+  /**
+   * Allocate a new user kernel.
+   */
+  public UserKernel() {
+    super();
+  }
 
-    /**
-     * Initialize this kernel. Creates a synchronized console and sets the
-     * processor's exception handler.
-     */
-    public void initialize(String[] args) {
-	super.initialize(args);
+  /**
+   * Initialize this kernel. Creates a synchronized console and sets the
+   * processor's exception handler.
+   */
+  public void initialize(String[] args) {
+    super.initialize(args);
 
-	console = new SynchConsole(Machine.console());
-	
-	Machine.processor().setExceptionHandler(new Runnable() {
-		public void run() { exceptionHandler(); }
-	    });
-    }
+    console = new SynchConsole(Machine.console());
 
-    /**
-     * Test the console device.
-     */	
-    public void selfTest() {
-	super.selfTest();
+    Machine.processor().setExceptionHandler(new Runnable() {
+      public void run() {
+        exceptionHandler();
+      }
+    });
+  }
 
-	System.out.println("Testing the console device. Typed characters");
-	System.out.println("will be echoed until q is typed.");
+  /**
+   * Test the console device.
+   */
+  public void selfTest() {
+    super.selfTest();
 
-	char c;
+    System.out.println("Testing the console device. Typed characters");
+    System.out.println("will be echoed until q is typed.");
 
-	do {
-	    c = (char) console.readByte(true);
-	    console.writeByte(c);
-	}
-	while (c != 'q');
+    char c;
 
-	System.out.println("");
-    }
+    do {
+      c = (char) console.readByte(true);
+      console.writeByte(c);
+    } while (c != 'q');
 
-    /**
-     * Returns the current process.
-     *
-     * @return	the current process, or <tt>null</tt> if no process is current.
-     */
-    public static UserProcess currentProcess() {
-	if (!(KThread.currentThread() instanceof UThread))
-	    return null;
-	
-	return ((UThread) KThread.currentThread()).process;
-    }
+    System.out.println("");
+  }
 
-    /**
-     * The exception handler. This handler is called by the processor whenever
-     * a user instruction causes a processor exception.
-     *
-     * <p>
-     * When the exception handler is invoked, interrupts are enabled, and the
-     * processor's cause register contains an integer identifying the cause of
-     * the exception (see the <tt>exceptionZZZ</tt> constants in the
-     * <tt>Processor</tt> class). If the exception involves a bad virtual
-     * address (e.g. page fault, TLB miss, read-only, bus error, or address
-     * error), the processor's BadVAddr register identifies the virtual address
-     * that caused the exception.
-     */
-    public void exceptionHandler() {
-	Lib.assertTrue(KThread.currentThread() instanceof UThread);
+  /**
+   * Returns the current process.
+   *
+   * @return the current process, or <tt>null</tt> if no process is current.
+   */
+  public static UserProcess currentProcess() {
+    if (!(KThread.currentThread() instanceof UThread))
+      return null;
 
-	UserProcess process = ((UThread) KThread.currentThread()).process;
-	int cause = Machine.processor().readRegister(Processor.regCause);
-	process.handleException(cause);
-    }
+    return ((UThread) KThread.currentThread()).process;
+  }
 
-    /**
-     * Start running user programs, by creating a process and running a shell
-     * program in it. The name of the shell program it must run is returned by
-     * <tt>Machine.getShellProgramName()</tt>.
-     *
-     * @see	nachos.machine.Machine#getShellProgramName
-     */
-    public void run() {
-	super.run();
+  /**
+   * The exception handler. This handler is called by the processor whenever a
+   * user instruction causes a processor exception.
+   *
+   * <p>
+   * When the exception handler is invoked, interrupts are enabled, and the
+   * processor's cause register contains an integer identifying the cause of the
+   * exception (see the <tt>exceptionZZZ</tt> constants in the <tt>Processor</tt>
+   * class). If the exception involves a bad virtual address (e.g. page fault, TLB
+   * miss, read-only, bus error, or address error), the processor's BadVAddr
+   * register identifies the virtual address that caused the exception.
+   */
+  public void exceptionHandler() {
+    Lib.assertTrue(KThread.currentThread() instanceof UThread);
 
-	UserProcess process = UserProcess.newUserProcess();
-	
-	String shellProgram = Machine.getShellProgramName();	
-	Lib.assertTrue(process.execute(shellProgram, new String[] { }));
+    UserProcess process = ((UThread) KThread.currentThread()).process;
+    int cause = Machine.processor().readRegister(Processor.regCause);
+    process.handleException(cause);
+  }
 
-	KThread.currentThread().finish();
-    }
+  /**
+   * Start running user programs, by creating a process and running a shell
+   * program in it. The name of the shell program it must run is returned by
+   * <tt>Machine.getShellProgramName()</tt>.
+   *
+   * @see nachos.machine.Machine#getShellProgramName
+   */
+  public void run() {
+    super.run();
 
-    /**
-     * Terminate this kernel. Never returns.
-     */
-    public void terminate() {
-	super.terminate();
-    }
+    UserProcess process = UserProcess.newUserProcess();
 
-    /** Globally accessible reference to the synchronized console. */
-    public static SynchConsole console;
+    String shellProgram = Machine.getShellProgramName();
+    Lib.assertTrue(process.execute(shellProgram, new String[] {}));
 
-    // dummy variables to make javac smarter
-    private static Coff dummy1 = null;
+    KThread.currentThread().finish();
+  }
+
+  /**
+   * Terminate this kernel. Never returns.
+   */
+  public void terminate() {
+    super.terminate();
+  }
+
+  /** Globally accessible reference to the synchronized console. */
+  public static SynchConsole console;
+
+  // dummy variables to make javac smarter
+  private static Coff dummy1 = null;
 }
