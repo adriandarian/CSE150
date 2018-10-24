@@ -16,6 +16,9 @@ public class Communicator {
   
   private int wait_listeners = 0;
   private int speakers = 0;
+  private int message = 0;
+  private boolean message_inuse;
+  
   
   
   public Communicator() {
@@ -35,6 +38,18 @@ public class Communicator {
    * @param word the integer to transfer.
    */
   public void speak(int word) {
+    lock.Acquire();
+    speakers++;
+    while(wait_listeners == 0)
+      speakers.sleep();
+    
+    
+    
+    
+    
+    lock.Release();
+    
+    
   }
 
   /**
@@ -44,6 +59,16 @@ public class Communicator {
    * @return the integer transferred.
    */
   public int listen() {
+    
+    lock.Acquire();
+    wait_listeners++;
+    while(word = message)
+    
+    
+    
+    lock.Release();
+    
+    
     return 0;
   }
 }
