@@ -40,7 +40,7 @@ public class Communicator {
   public void speak(int word) {
     lock.Acquire();
     speakers++;
-    while(wait_listeners == 0)
+    while(wait_listeners == 0 || message_inuse)
       speakers.sleep();
     
     
