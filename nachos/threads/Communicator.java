@@ -66,9 +66,10 @@ public class Communicator {
     
     
     
+    
     lock.Release();
+    wait_listeners--;
     
-    
-    return 0;
+    return word;
   }
 }
