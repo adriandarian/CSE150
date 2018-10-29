@@ -14,17 +14,24 @@ public class Communicator {
    * Allocate a new communicator.
    */
   
-  private int wait_listeners = 0;
+  private int messages;
+  private boolean message_in_use;
+  
   private int speakers = 0;
-  private int message = 0;
-  private boolean message_inuse;
+  private int listeners = 0;  
+  private int wait_listeners = 0;
+
+  private Lock lock;
+  private Condition speakers_Condition, listeners_Condition, return_Condition;
+  
+
   
   
   
   public Communicator() {
-    lock = 
-    listeners = 
-    speaker =   
+    lock = new Lock();
+    listeners = new Condition(lock);
+    speaker = new Condition(lock);
   }
 
   /**
@@ -40,14 +47,17 @@ public class Communicator {
   public void speak(int word) {
     lock.Acquire();
     speakers++;
-    while(wait_listeners == 0 || message_inuse)
+    
+    while(wait_listeners == 0 || message_in_use)
       speakers.sleep();
     
+    message_in_use = true;
+    messages = word;
     
-    
-    
-    
+    speakers--;
+    listeners.broadcast();
     lock.Release();
+  }
     
     
   }
@@ -61,13 +71,15 @@ public class Communicator {
   public int listen() {
     
     lock.Acquire();
+    
     wait_listeners++;
-    while(word = message)
+    while(word = messages)
     
     
     
     
     lock.Release();
+    
     wait_listeners--;
     
     return word;
