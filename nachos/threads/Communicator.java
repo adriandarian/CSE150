@@ -57,6 +57,7 @@ public class Communicator {
     
     speaker--;
     listeners_Condition.broadcast();
+    
     lock.release();
    
   }
