@@ -72,9 +72,8 @@ public class Communicator {
    * @return the integer transferred.
    */
   public int listen() {
-    
+    int thee_word;
     lock.acquire();
-    
     wait_listeners++;
     
     
@@ -85,11 +84,11 @@ public class Communicator {
         listeners_Condition.sleep();
     }
     
-    int word = messages;
+    thee_word = messages;
     message_in_use = false;
-    wait_listener--;
+    wait_listeners--;
    
-    speaker_Condition.wake();
+    speakers_Condition.wake();
     lock.release();
     
     return word;
