@@ -15,22 +15,18 @@ public class Communicator {
    */
   
   private int messages;
-  private boolean message_in_use;
+  private boolean message_in_use = false;
   
-  private int speakers = 0;
-  private int listeners = 0;  
+  private int speaker = 0;
   private int wait_listeners = 0;
 
   private Lock lock;
-  private Condition speakers_Condition, listeners_Condition, return_Condition;
-  
-
-  
+  private Condition speakers_Condition, listeners_Condition;
   
   
   public Communicator() {
     lock = new Lock();
-    listeners = new Condition(lock);
+    listener = new Condition(lock);
     speaker = new Condition(lock);
   }
 
@@ -45,18 +41,24 @@ public class Communicator {
    * @param word the integer to transfer.
    */
   public void speak(int word) {
-    lock.Acquire();
-    speakers++;
+    lock.acquire();
+    speaker++;
     
-    while(wait_listeners == 0 || message_in_use)
-      speakers.sleep();
+    while(wait_listeners == 0){
+      speakers_Condition.sleep();
     
+    if (message_in_use){
+      speakers_Condition.sleep();}
+    }
+    
+ 
     message_in_use = true;
     messages = word;
     
-    speakers--;
-    listeners.broadcast();
-    lock.Release();
+    speaker--;
+    listeners_Condition.broadcast();
+    lock.release();
+   
   }
     
     
@@ -70,17 +72,24 @@ public class Communicator {
    */
   public int listen() {
     
-    lock.Acquire();
+    lock.acquire();
     
     wait_listeners++;
-    while(word = messages)
     
     
+    while((!message_in_use)||(wait_listeners > 0){
+      if(speaker>0){
+        speakers_Condition.broadcast();
+      }
+        listeners_Condition.sleep();
+    }
     
-    
-    lock.Release();
-    
-    wait_listeners--;
+    int word = messages;
+    message_in_use = false;
+    wait_listener--;
+   
+    speaker_Condition.wake();
+    lock.release();
     
     return word;
   }
