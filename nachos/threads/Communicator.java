@@ -56,7 +56,7 @@ public class Communicator {
     messages = word;
     
     speaker--;
-    listeners_Condition.broadcast();
+    listeners_Condition.wake();
     
     lock.release();
    
@@ -80,7 +80,7 @@ public class Communicator {
     
     while((!message_in_use)||(wait_listeners > 0){
       if(speaker>0){
-        speakers_Condition.broadcast();
+        speakers_Condition.wake();
       }
         listeners_Condition.sleep();
     }
