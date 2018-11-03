@@ -56,7 +56,8 @@ public class Communicator {
     messages = word;
     
     speaker--;
-    listeners_Condition.broadcast();
+    listeners_Condition.wake();
+    
     lock.release();
    
   }
@@ -71,26 +72,25 @@ public class Communicator {
    * @return the integer transferred.
    */
   public int listen() {
-    
+    int thee_word;
     lock.acquire();
-    
     wait_listeners++;
     
     
     while((!message_in_use)||(wait_listeners > 0){
       if(speaker>0){
-        speakers_Condition.broadcast();
+        speakers_Condition.wake();
       }
         listeners_Condition.sleep();
     }
     
-    int word = messages;
+    thee_word = messages;
     message_in_use = false;
-    wait_listener--;
+    wait_listeners--;
    
-    speaker_Condition.wake();
+    speakers_Condition.wake();
     lock.release();
     
-    return word;
+    return thee_word;
   }
 }
