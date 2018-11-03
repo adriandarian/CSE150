@@ -2,8 +2,6 @@ package nachos.threads;
 
 import nachos.machine.*;
 
-import java.util.LinkedList;
-
 /**
  * An implementation of condition variables that disables interrupt()s for
  * synchronization.
@@ -56,8 +54,8 @@ public class Condition2 {
     KThread thread = Queue.nextThread();
 
     if(thread != null) {
-        num--;
-        thread.ready();
+      num--;
+      thread.ready();
     }
 
     Machine.interrupt().restore(Status);
@@ -74,7 +72,7 @@ public class Condition2 {
     KThread thread;
 
     while((thread = Queue.nextThread()) != null) {
-        thread.ready();
+      thread.ready();
     }
 
     num = 0;
