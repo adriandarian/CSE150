@@ -275,7 +275,8 @@ public class KThread {
    * immediately. This method must only be called once; the second call is not
    * guaranteed to return. This thread must not be the current thread.
    */
-  public Lock lock = new Lock();
+  public Lock lockInJoin = new Lock();
+  public Condition2 joinCondition = new Condition2(joinLock);
 
   public void join() {
     Lib.debug(dbgThread, "Joining to thread: " + toString());
