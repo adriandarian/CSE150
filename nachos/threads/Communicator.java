@@ -91,6 +91,7 @@ public class Communicator {
     speakers_Condition.wake();
     lock.release();
     
+          
     return thee_word;
   }
 }
