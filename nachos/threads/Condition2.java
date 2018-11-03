@@ -1,9 +1,11 @@
 package nachos.threads;
 
+import java.util.LinkedList;
+
 import nachos.machine.*;
 
 /**
- * An implementation of condition variables that disables interrupt()s for
+ * An implementation of condition variables that disables interrupts for
  * synchronization.
  *
  * <p>
@@ -22,6 +24,7 @@ public class Condition2 {
    */
   public Condition2(Lock conditionLock) {
     this.conditionLock = conditionLock;
+    waitQueue = new LinkedList<Semaphore>();
   }
 
   /**
