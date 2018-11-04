@@ -14,10 +14,9 @@ public class Communicator {
    * Allocate a new communicator.
    */
   
-  private int messages;
+  private int messages = 0;
   private boolean message_in_use = false;
   
-  private int speaker = 0;
   private int wait_listeners = 0;
 
   private Lock lock;
@@ -42,7 +41,7 @@ public class Communicator {
    */
   public void speak(int word) {
     lock.acquire();
-    speaker++;
+    speakers_Condition++;
     
     while(wait_listeners == 0){
       speakers_Condition.sleep();
@@ -55,7 +54,7 @@ public class Communicator {
     message_in_use = true;
     messages = word;
     
-    speaker--;
+    speakers_Condition--;
     listeners_Condition.wake();
     
     lock.release();
