@@ -26,8 +26,8 @@ public class Communicator {
   
   public Communicator() {
     lock = new Lock();
-    listener = new Condition(lock);
-    speaker = new Condition(lock);
+    listeners_Condition = new Condition(lock);
+    speakers_Condition = new Condition(lock);
   }
 
   /**
