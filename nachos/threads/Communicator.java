@@ -63,8 +63,7 @@ public class Communicator {
   }
     
     
-  }
-
+  
   /**
    * Wait for a thread to speak through this communicator, and then return the
    * <i>word</i> that thread passed to <tt>speak()</tt>.
@@ -77,7 +76,7 @@ public class Communicator {
     wait_listeners++;
     
     
-    while((!message_in_use)||(wait_listeners > 0){
+    while((!message_in_use)||(wait_listeners > 0)){
       if(speaker>0){
         speakers_Condition.wake();
       }
