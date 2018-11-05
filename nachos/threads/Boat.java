@@ -90,6 +90,7 @@ public class Boat {
      * show that it is synchronized. For example: bg.AdultRowToMolokai(); indicates
      * that an adult has rowed the boat across to Molokai
      */
+    BoatGrader b = new BoatGrader();
     b.initializeAdult();
 
     incrLock.acquire();
@@ -107,6 +108,7 @@ public class Boat {
   }
 
   static void ChildItinerary() {
+    BoatGrader b = new BoatGrader();
     b.initializeChild();
 
     incrLock.acquire();
