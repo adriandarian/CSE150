@@ -14,20 +14,19 @@ public class Communicator {
    * Allocate a new communicator.
    */
   
-  private int messages;
-  private boolean message_in_use = false;
+  private int messages = 0;
+  private boolean if_message_in_use = false;
   
-  private int speaker = 0;
   private int wait_listeners = 0;
 
   private Lock lock;
-  private Condition speakers_Condition, listeners_Condition;
+  private Condition2 speakers_Condition, listeners_Condition;
   
   
   public Communicator() {
-    lock = new Lock();
-    listener = new Condition(lock);
-    speaker = new Condition(lock);
+    the_lock = new Lock();
+    listeners_Condition = new Condition2(lock);
+    speakers_Condition = new Condition2(lock);
   }
 
   /**
@@ -41,30 +40,29 @@ public class Communicator {
    * @param word the integer to transfer.
    */
   public void speak(int word) {
-    lock.acquire();
-    speaker++;
+    the_lock.acquire();
+    speakers_Condition++;
     
-    while(wait_listeners == 0){
+    while (wait_listeners == 0){
       speakers_Condition.sleep();
     
-    if (message_in_use){
+    if (if_message_in_use){
       speakers_Condition.sleep();}
     }
     
  
-    message_in_use = true;
+    if_message_in_use = true;
     messages = word;
     
-    speaker--;
+    speakers_Condition--;
     listeners_Condition.wake();
     
-    lock.release();
+    the_lock.release();
    
   }
     
     
   
-
   /**
    * Wait for a thread to speak through this communicator, and then return the
    * <i>word</i> that thread passed to <tt>speak()</tt>.
@@ -73,25 +71,24 @@ public class Communicator {
    */
   public int listen() {
     int thee_word;
-    lock.acquire();
+    the_lock.acquire();
     wait_listeners++;
     
     
     while((!message_in_use)||(wait_listeners > 0)){
-      if(speaker>0){
+      if(speakers_Condition>0){
         speakers_Condition.wake();
       }
         listeners_Condition.sleep();
     }
     
     thee_word = messages;
-    message_in_use = false;
+    if_message_in_use = false;
     wait_listeners--;
    
     speakers_Condition.wake();
-    lock.release();
+    the_lock.release();
     
-          
     return thee_word;
   }
 }
