@@ -15,7 +15,7 @@ public class Communicator {
    */
   
   private int messages = 0;
-  private boolean message_in_use = false;
+  private boolean if_message_in_use = false;
   
   private int wait_listeners = 0;
 
@@ -24,7 +24,7 @@ public class Communicator {
   
   
   public Communicator() {
-    lock = new Lock();
+    the_lock = new Lock();
     listeners_Condition = new Condition(lock);
     speakers_Condition = new Condition(lock);
   }
@@ -43,15 +43,15 @@ public class Communicator {
     lock.acquire();
     speakers_Condition++;
     
-    while(wait_listeners == 0){
+    while (wait_listeners == 0){
       speakers_Condition.sleep();
     
-    if (message_in_use){
+    if (if_message_in_use){
       speakers_Condition.sleep();}
     }
     
  
-    message_in_use = true;
+    if_message_in_use = true;
     messages = word;
     
     speakers_Condition--;
@@ -76,14 +76,14 @@ public class Communicator {
     
     
     while((!message_in_use)||(wait_listeners > 0)){
-      if(speaker>0){
+      if(speakers_Condition>0){
         speakers_Condition.wake();
       }
         listeners_Condition.sleep();
     }
     
     thee_word = messages;
-    message_in_use = false;
+    if_message_in_use = false;
     wait_listeners--;
    
     speakers_Condition.wake();
