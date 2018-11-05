@@ -7,7 +7,7 @@ public class Boat {
   static Communicator communicator;
 
   static Lock incrLock, boatLock, catmLock, cawcLock, wwLock;
-  static int adultsOahu, childrenOahu, adultsmolokai, childrenMolokai;
+  static int adultsOahu, childrenOahu, adultsMolokai, childrenMolokai;
   static boolean passengerTaken;
   static Condition childrenAllToMolokai, comebackAndWakeCoordinator, waitWake;
 
@@ -61,7 +61,7 @@ public class Boat {
 
     for (int i = 0; i < children; i++) {
       KThread t = new KThread(new Runnable() {
-        @Overrride
+        @Override
         public void run() {
           ChildItinerary();
         }
@@ -71,7 +71,7 @@ public class Boat {
     }
 
     communicator.listen();
-    bg.AllCrossed();
+    //bg.AllCrossed();
 
     /*Runnable r = new Runnable() {
       public void run() {
@@ -90,7 +90,7 @@ public class Boat {
      * show that it is synchronized. For example: bg.AdultRowToMolokai(); indicates
      * that an adult has rowed the boat across to Molokai
      */
-    bg.initializeAdult();
+    b.initializeAdult();
 
     incrLock.acquire();
     adultsOahu++;
@@ -107,7 +107,7 @@ public class Boat {
   }
 
   static void ChildItinerary() {
-    bg.initializeChild();
+    b.initializeChild();
 
     incrLock.acquire();
     childrenOahu++;
