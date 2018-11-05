@@ -14,16 +14,19 @@ public class Communicator {
    * Allocate a new communicator.
    */
   
-  private int messages = 0;
-  private boolean if_message_in_use = false;
+  private int messages;
+  private boolean if_message_in_use;
   
-  private int wait_listeners = 0;
+  private int wait_listeners;
 
   private Lock the_lock;
   private Condition2 speakers_Condition, listeners_Condition;
   
   
   public Communicator() {
+    messages =0;
+    if_message_in_use = false;
+    wait_listeners =0;
     the_lock = new Lock();
     listeners_Condition = new Condition2(the_lock);
     speakers_Condition = new Condition2(the_lock);
