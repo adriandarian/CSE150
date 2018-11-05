@@ -75,11 +75,10 @@ public class Communicator {
     wait_listeners++;
     
     
-    while((!if_message_in_use)||(wait_listeners > 0))
+
      
-        speakers_Condition.wake();
-   
-        listeners_Condition.sleep();
+     speakers_Condition.wake();
+     listeners_Condition.sleep();
     
     
     thee_word = messages;
