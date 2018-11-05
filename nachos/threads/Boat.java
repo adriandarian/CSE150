@@ -60,7 +60,7 @@ public class Boat {
     }
 
     for (int o = 0; o < children; o++) {
-      KThread t = new KThread(new Runnable() {
+      KThread p = new KThread(new Runnable() {
         @Override
         public void run() {
           ChildItinerary();
