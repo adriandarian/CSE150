@@ -10,21 +10,26 @@ import nachos.machine.*;
  * be paired off at this point.
  */
 public class Communicator {
-  private int toSubscribe;
-  private boolean toBeSubscribed;
-  private Condition2 publisher;
-  private Condition2 subscriber;
-  private Condition2 subscriberShake;
-  private Lock lock;
   /**
    * Allocate a new communicator.
    */
+  
+  private int messages;
+  private boolean if_message_in_use;
+  private int wait_listeners;
+  private int the_speakers;
+  private Lock the_lock;
+  private Condition2 speakers_Condition;
+  private Condition2 listeners_Condition;
+  
+  
   public Communicator() {
-    this.toBeSubscribed = false;
-    this.lock = new Lock();
-    this.publisher = new Condition2(lock);
-    this.subscriber = new Condition2(lock);
-    this.subscriberShake = new Condition2(lock);
+    this.messages =0;
+    this.if_message_in_use = false;
+    this.wait_listeners =0;
+    this.the_lock = new Lock();
+    this.listeners_Condition = new Condition2(this.the_lock);
+    this.speakers_Condition = new Condition2(this.the_lock);
   }
 
   /**
@@ -38,19 +43,26 @@ public class Communicator {
    * @param word the integer to transfer.
    */
   public void speak(int word) {
-    lock.acquire();
-    while (toBeSubscribed) {
-      publisher.sleep();
-    }
+    the_lock.acquire();
+    the_speakers++;
+    
+    while ((if_message_in_use)||(wait_listeners == 0))
+      speakers_Condition.sleep();
+   
 
-    this.toBeSubscribed = true;
-    this.toSubscribe = word;
-    publisher.wake();
-    subscriberShake.sleep();
-
-    lock.release();
+ 
+    if_message_in_use = true;
+    messages = word;
+    
+    the_speakers--;
+    listeners_Condition.wake();
+    
+    the_lock.release();
+   
   }
-
+    
+    
+  
   /**
    * Wait for a thread to speak through this communicator, and then return the
    * <i>word</i> that thread passed to <tt>speak()</tt>.
@@ -58,19 +70,25 @@ public class Communicator {
    * @return the integer transferred.
    */
   public int listen() {
-    int transferred;
-    lock.acquire();
-    while (!toBeSubscribed) {
-      subscriber.sleep();
-    }
+    
+    the_lock.acquire();
+    wait_listeners++;
+    
+    
 
-    transferred = this.toSubscribe;
-    this.toBeSubscribed = false;
-
-    publisher.wake();
-    subscriberShake.wake();
-
-    lock.release();
-    return transferred;
+     
+     speakers_Condition.wake();
+     listeners_Condition.sleep();
+    
+    
+    this.thee_word = messages;
+    if_message_in_use = false;
+    wait_listeners--;
+   
+    speakers_Condition.wake();
+    the_lock.release();
+    
+    return this.thee_word;
   }
+  private int thee_word;
 }
