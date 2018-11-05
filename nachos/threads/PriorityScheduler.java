@@ -143,15 +143,15 @@ public class PriorityScheduler extends Scheduler {
 			state.acquire(this);
 
 		}
-
+		
 		public KThread nextThread() {
 			Lib.assertTrue(Machine.interrupt().disabled());		
-			ThreadState next = pickNextThread();
+			ThreadState next = this.pickNextThread();
 			if(!stateSet.isEmpty()){
-				this.acquire(next.thread);
-				stateSet.remove(stateSet.first());
-				return stateSet.first().thread;
+				this.acquire(next.getThread());
+				return next.getThread();
 			}
+			 
 		}
 		/**
 		 * Return the next thread that <tt>nextThread()</tt> would return, without 
@@ -201,7 +201,12 @@ public class PriorityScheduler extends Scheduler {
 		 */
 		protected TreeSet<PriorityQueue> active;
 		protected TreeSet<PriorityQueue> waiting;
+		/** The thread with which this object is associated. */	   
+		protected KThread thread;
 		
+		public KThread getThread(){
+			return thread;
+		}
 		
 		public ThreadState(KThread thread) {
 			active = new TreeSet<PriorityQueue>();
@@ -289,8 +294,9 @@ public class PriorityScheduler extends Scheduler {
 			this.waiting.remove(waitQueue);
 			
 		}	
-		/** The thread with which this object is associated. */	   
-		protected KThread thread;
+
+
+
 		/** The priority of the associated thread. */
 		protected int priority;
 	}
