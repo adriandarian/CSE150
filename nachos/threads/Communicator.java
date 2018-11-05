@@ -51,10 +51,10 @@ public class Communicator {
     int result;
     communicator.acquire();
 
-    while (!inTransaction) {
-      if (speakerQueue.getThreadCount() > 0)
-        speakerQueue.wake();
-      listenerQueue.sleep();
+    while (!Trans) {
+      if (publisher.getThreadCount() > 0)
+        publisher.wake();
+      subscriber.sleep();
     }
 
     result = message;
@@ -68,7 +68,7 @@ public class Communicator {
 
   private Lock communicator = new Lock();
   private Condition2 publisher = new Condition2(communicator);
-  private COndition2 subscriber = new Condition2(communicator);
+  private Condition2 subscriber = new Condition2(communicator);
   private int message;
   private boolean Trans;
 }
