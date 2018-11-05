@@ -201,6 +201,8 @@ public class PriorityScheduler extends Scheduler {
 		 */
 		protected TreeSet<PriorityQueue> active;
 		protected TreeSet<PriorityQueue> waiting;
+		
+		
 		public ThreadState(KThread thread) {
 			active = new TreeSet<PriorityQueue>();
 			waiting = new TreeSet<PriorityQueue>();
@@ -269,7 +271,7 @@ public class PriorityScheduler extends Scheduler {
 			
 			this.active.remove(waitQueue);
 			this.waiting.add(waitQueue);
-			Lib.assertTrue(Machine.interrupt().disabled());
+			
 		}
 
 		/**
@@ -285,7 +287,7 @@ public class PriorityScheduler extends Scheduler {
 		public void acquire(PriorityQueue waitQueue) {
 			this.active.add(waitQueue);
 			this.waiting.remove(waitQueue);
-			Lib.assertTrue(Machine.interrupt().disabled());
+			
 		}	
 		/** The thread with which this object is associated. */	   
 		protected KThread thread;
