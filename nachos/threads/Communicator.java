@@ -19,14 +19,14 @@ public class Communicator {
   
   private int wait_listeners = 0;
 
-  private Lock lock;
+  private Lock the_lock;
   private Condition2 speakers_Condition, listeners_Condition;
   
   
   public Communicator() {
     the_lock = new Lock();
-    listeners_Condition = new Condition2(lock);
-    speakers_Condition = new Condition2(lock);
+    listeners_Condition = new Condition2(the_lock);
+    speakers_Condition = new Condition2(the_lock);
   }
 
   /**
