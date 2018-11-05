@@ -46,13 +46,10 @@ public class Communicator {
     the_lock.acquire();
     speakers_Condition++;
     
-    while (wait_listeners == 0){
+    while ((if_message_in_use)||(wait_listeners == 0))
       speakers_Condition.sleep();
-    
-    if (if_message_in_use){
-      speakers_Condition.sleep();}
-    }
-    
+   
+
  
     if_message_in_use = true;
     messages = word;
@@ -78,12 +75,12 @@ public class Communicator {
     wait_listeners++;
     
     
-    while((!message_in_use)||(wait_listeners > 0)){
+    while((!message_in_use)||(wait_listeners > 0))
      
         speakers_Condition.wake();
    
         listeners_Condition.sleep();
-    }
+    
     
     thee_word = messages;
     if_message_in_use = false;
