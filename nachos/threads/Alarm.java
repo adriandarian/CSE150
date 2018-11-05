@@ -1,6 +1,7 @@
 package nachos.threads;
 
 import nachos.machine.*;
+import java.util.*;
 
 /**
  * Uses the hardware timer to provide preemption, and to allow threads to sleep
@@ -34,7 +35,7 @@ public class Alarm {
       
       threadTime temp = sleepingThreads.peek();
 
-      while(temp != null && temp.time < Machine.timer().getTime()) {
+      while(temp != null && temp.extendedTime < Machine.timer().getTime()) {
     	  
           System.out.println("Waking thread");
           temp.thread.ready();
