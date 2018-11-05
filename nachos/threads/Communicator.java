@@ -40,7 +40,7 @@ public class Communicator {
    * @param word the integer to transfer.
    */
   public void speak(int word) {
-    lock.acquire();
+    the_lock.acquire();
     speakers_Condition++;
     
     while (wait_listeners == 0){
@@ -57,7 +57,7 @@ public class Communicator {
     speakers_Condition--;
     listeners_Condition.wake();
     
-    lock.release();
+    the_lock.release();
    
   }
     
@@ -71,7 +71,7 @@ public class Communicator {
    */
   public int listen() {
     int thee_word;
-    lock.acquire();
+    the_lock.acquire();
     wait_listeners++;
     
     
@@ -87,7 +87,7 @@ public class Communicator {
     wait_listeners--;
    
     speakers_Condition.wake();
-    lock.release();
+    the_lock.release();
     
     return thee_word;
   }
