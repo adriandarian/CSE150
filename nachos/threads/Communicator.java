@@ -24,12 +24,12 @@ public class Communicator {
   
   
   public Communicator() {
-    messages =0;
-    if_message_in_use = false;
-    wait_listeners =0;
-    the_lock = new Lock();
-    listeners_Condition = new Condition2(the_lock);
-    speakers_Condition = new Condition2(the_lock);
+    this.messages =0;
+    this.if_message_in_use = false;
+    this.wait_listeners =0;
+    this.the_lock = new Lock();
+    this.listeners_Condition = new Condition2(the_lock);
+    this.speakers_Condition = new Condition2(the_lock);
   }
 
   /**
