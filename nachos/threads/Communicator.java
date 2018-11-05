@@ -13,7 +13,23 @@ public class Communicator {
   /**
    * Allocate a new communicator.
    */
+  
+  private int messages;
+  private boolean if_message_in_use;
+  private int wait_listeners;
+  private int the_speakers;
+  private Lock the_lock;
+  private Condition2 speakers_Condition;
+  private Condition2 listeners_Condition;
+  
+  
   public Communicator() {
+    messages =0;
+    if_message_in_use = false;
+    wait_listeners =0;
+    the_lock = new Lock();
+    listeners_Condition = new Condition2(the_lock);
+    speakers_Condition = new Condition2(the_lock);
   }
 
   /**
@@ -27,8 +43,26 @@ public class Communicator {
    * @param word the integer to transfer.
    */
   public void speak(int word) {
-  }
+    the_lock.acquire();
+    the_speakers++;
+    
+    while ((if_message_in_use)||(wait_listeners == 0))
+      speakers_Condition.sleep();
+   
 
+ 
+    if_message_in_use = true;
+    messages = word;
+    
+    the_speakers--;
+    listeners_Condition.wake();
+    
+    the_lock.release();
+   
+  }
+    
+    
+  
   /**
    * Wait for a thread to speak through this communicator, and then return the
    * <i>word</i> that thread passed to <tt>speak()</tt>.
@@ -36,6 +70,25 @@ public class Communicator {
    * @return the integer transferred.
    */
   public int listen() {
-    return 0;
+    int thee_word;
+    the_lock.acquire();
+    wait_listeners++;
+    
+    
+    while((!if_message_in_use)||(wait_listeners > 0))
+     
+        speakers_Condition.wake();
+   
+        listeners_Condition.sleep();
+    
+    
+    thee_word = messages;
+    if_message_in_use = false;
+    wait_listeners--;
+   
+    speakers_Condition.wake();
+    the_lock.release();
+    
+    return thee_word;
   }
 }
