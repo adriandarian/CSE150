@@ -70,7 +70,7 @@ public class Communicator {
    * @return the integer transferred.
    */
   public int listen() {
-    int thee_word;
+    
     the_lock.acquire();
     wait_listeners++;
     
@@ -81,13 +81,14 @@ public class Communicator {
      listeners_Condition.sleep();
     
     
-    thee_word = messages;
+    this.thee_word = messages;
     if_message_in_use = false;
     wait_listeners--;
    
     speakers_Condition.wake();
     the_lock.release();
     
-    return thee_word;
+    return this.thee_word;
   }
+  private int thee_word;
 }
