@@ -1,8 +1,7 @@
 package nachos.threads;
 
-import java.util.PriorityQueue;
-
 import nachos.machine.*;
+import java.util.*;
 
 /**
  * Uses the hardware timer to provide preemption, and to allow threads to sleep
@@ -31,11 +30,21 @@ public class Alarm {
    * run.
    */
   public void timerInterrupt() {
-    Machine.interrupt().disable();
-    while(wait.peek() != null && ((BlockedThread)wait.peek()).x < Machine.timer().getTime()) {
-      wait.poll().t.ready();
-    }
-    KThread.currentThread().yield();
+	  
+	  boolean intStatus = Machine.interrupt().disable();
+      
+      threadTime temp = sleepingThreads.peek();
+
+      while(temp != null && temp.extendedTime < Machine.timer().getTime()) {
+    	  
+          System.out.println("Waking thread");
+          temp.thread.ready();
+          sleepingThreads.poll();
+          temp = sleepingThreads.peek();
+      }
+      
+      Machine.interrupt().restore(intStatus);
+      KThread.currentThread().yield();
   }
 
   /**
@@ -52,27 +61,40 @@ public class Alarm {
    */
   public void waitUntil(long x) {
     // for now, cheat just to get something working (busy waiting is bad)
-    // long wakeTime = Machine.timer().getTime() + x;
-    // while (wakeTime > Machine.timer().getTime())
-    //  KThread.yield();
-    Machine.interrupt().disable();
-    BlockedThread t = new BlockedThread();
-    t.t = KThread.currentThread();
-    t.x = x + Machine.timer().getTime();
-    wait.offer(t);
-    KThread.sleep();
-  }
+	  	boolean inStatus=Machine.interrupt().disable();
+		long extendedTime = Machine.timer().getTime() + x;
+		
+		System.out.println("Sleeping thread at : " + x);
+		
+		KThread thread=KThread.currentThread();
+		threadTime waitThread=new threadTime(thread,extendedTime);
+		sleepingThreads.add(waitThread);
+		KThread.sleep();
+		
+		Machine.interrupt().restore(inStatus);
 
-  public class BlockedThread implements Comparable {
-    public KThread t;
-    public long x;
+	}
 
-    public int compareTo(Object t) {
-      if (x == ((BlockedThread)t).x) return 0;
-      else if (x < ((BlockedThread)t).x) return 1;
-      else return -1;
-    }
-  }
+	private class threadTime implements Comparable<threadTime>{
+		KThread thread;
+		long extendedTime;
 
-  PriorityQueue<BlockedThread> wait = new PriorityQueue<BlockedThread>();
+		public threadTime(KThread thread, long extendedTime){
+			this.thread=thread;
+			this.extendedTime=extendedTime;
+		}
+
+		public int compareTo(threadTime thread){
+			
+			if(this.extendedTime<thread.extendedTime)
+				return -1;
+			else if(this.extendedTime>thread.extendedTime)
+				return 1;
+			else 
+				return 0;
+
+		}
+
+	}
+	private PriorityQueue<threadTime> sleepingThreads=new PriorityQueue<threadTime>();
 }
