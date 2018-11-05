@@ -150,8 +150,9 @@ public class PriorityScheduler extends Scheduler {
 			if(!stateSet.isEmpty()){
 				this.acquire(next.getThread());
 				return next.getThread();
+			}else{
+				return null; 
 			}
-			 
 		}
 		/**
 		 * Return the next thread that <tt>nextThread()</tt> would return, without 
