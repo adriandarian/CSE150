@@ -71,7 +71,7 @@ public class Boat {
     }
 
     communicator.listen();
-    //bg.AllCrossed();
+    // bg.AllCrossed();
 
     /*Runnable r = new Runnable() {
       public void run() {
@@ -90,8 +90,7 @@ public class Boat {
      * show that it is synchronized. For example: bg.AdultRowToMolokai(); indicates
      * that an adult has rowed the boat across to Molokai
      */
-    BoatGrader b = new BoatGrader();
-    b.initializeAdult();
+    // b.initializeAdult();
 
     incrLock.acquire();
     adultsOahu++;
@@ -108,8 +107,7 @@ public class Boat {
   }
 
   static void ChildItinerary() {
-    BoatGrader b = new BoatGrader();
-    b.initializeChild();
+    // b.initializeChild();
 
     incrLock.acquire();
     childrenOahu++;
