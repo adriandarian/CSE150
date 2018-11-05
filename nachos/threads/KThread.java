@@ -293,7 +293,7 @@ public class KThread {
     System.out.println(idleThread);
     System.out.println(currentThread);
 
-    if (this.status == statusFinshed ) {
+    if (this.status == statusFinished ) {
       return;
     }
    
