@@ -28,8 +28,8 @@ public class Communicator {
     this.if_message_in_use = false;
     this.wait_listeners =0;
     this.the_lock = new Lock();
-    this.listeners_Condition = new Condition2(the_lock);
-    this.speakers_Condition = new Condition2(the_lock);
+    this.listeners_Condition = new Condition2(this.the_lock);
+    this.speakers_Condition = new Condition2(this.the_lock);
   }
 
   /**
