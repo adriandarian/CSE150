@@ -275,7 +275,7 @@ public class KThread {
    * immediately. This method must only be called once; the second call is not
    * guaranteed to return. This thread must not be the current thread.
    */
-  public Lock lockInJoin = new Lock();
+  public Lock joinLock = new Lock();
   public Condition2 joinCondition = new Condition2(joinLock);
 
   public void join() {
@@ -290,11 +290,11 @@ public class KThread {
       return;
     }
 
-    lockInJoin.acquire();
+    joinLock.acquire();
     joinCondition.sleep();
-    lockInJoin.release();
+    joinLock.release();
   }
-
+  
   /**
    * Create the idle thread. Whenever there are no threads ready to be run, and
    * <tt>runNextThread()</tt> is called, it will run the idle thread. The idle
