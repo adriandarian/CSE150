@@ -16,11 +16,11 @@ public class Communicator {
   
   private int messages;
   private boolean if_message_in_use;
-  
   private int wait_listeners;
 
   private Lock the_lock;
-  private Condition2 speakers_Condition, listeners_Condition;
+  private Condition2 speakers_Condition;
+  private Condition2 listeners_Condition;
   
   
   public Communicator() {
