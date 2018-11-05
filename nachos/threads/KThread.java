@@ -297,7 +297,7 @@ public class KThread {
       return;
     }
    
-    if (join_n_Thread = currentThread)
+    if (join_n_Thread == KThread.currentThread)
     {
       currentThread.join_n_Thread.sleep();
     }
