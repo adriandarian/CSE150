@@ -32,8 +32,8 @@ public class Alarm {
    */
   public void timerInterrupt() {
     Machine.interrupt().disable();
-    while(waitQueue.peek() != null && ((BlockedThread)waitQueue.peek()).x < Machine.timer().getTime()) {
-      waitQueue.poll().t.ready();
+    while(wait.peek() != null && ((BlockedThread)wait.peek()).x < Machine.timer().getTime()) {
+      wait.poll().t.ready();
     }
     KThread.currentThread().yield();
   }
@@ -59,7 +59,7 @@ public class Alarm {
     BlockedThread t = new BlockedThread();
     t.t = KThread.currentThread();
     t.x = x + Machine.timer().getTime();
-    waitQueue.offer(t);
+    wait.offer(t);
     KThread.sleep();
   }
 
@@ -74,5 +74,5 @@ public class Alarm {
     }
   }
 
-  PriorityQueue<BlockedThread> waitQueue = new PriorityQueue<BlockedThread>();
+  PriorityQueue<BlockedThread> wait = new PriorityQueue<BlockedThread>();
 }
