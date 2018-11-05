@@ -6,10 +6,10 @@ public class Boat {
   static BoatGrader bg;
   static Communicator communicator;
 
-  static Lock incr, boat, catm, cawc, ww;
+  static Lock incrLock, boatLock, catmLock, cawcLock, wwLock;
   static int adultsOahu, childrenOahu, adultsMolokai, childrenMolokai;
-  static boolean passenger;
-  static Condition cToMolokai, coordinator, wake;
+  static boolean passengerTaken;
+  static Condition childrenAllToMolokai, comebackAndWakeCoordinator, waitWake;
 
   public static void selfTest() {
     BoatGrader b = new BoatGrader();
@@ -31,43 +31,43 @@ public class Boat {
 
     // Instantiate global variables here
     communicator = new Communicator();
-    incr = new Lock();
-    boat = new Lock();
-    catm = new Lock();
-    cToMolokai = new Condition(catm);
-    cawc = new Lock();
-    coordinator = new Condition(cawc);
-    ww = new Lock();
-    wake = new Condition(ww);
+    incrLock = new Lock();
+    boatLock = new Lock();
+    catmLock = new Lock();
+    childrenAllToMolokai = new Condition(catmLock);
+    cawcLock = new Lock();
+    comebackAndWakeCoordinator = new Condition(cawcLock);
+    wwLock = new Lock();
+    waitWake = new Condition(wwLock);
     adultsOahu = 0;
     adultsMolokai = 0;
     childrenOahu = 0;
     childrenMolokai = 0;
-    passenger = false;
+    passengerTaken = false;
 
     // Create threads here. See section 3.4 of the Nachos for Java
     // Walkthrough linked from the projects page.
 
-    for (int m = 0; m < adults; m++) {
-      KThread n = new KThread(new Runnable() {
+    for (int i = 0; i < adults; i++) {
+      KThread t = new KThread(new Runnable() {
         @Override
         public void run() {
           AdultItinerary();
         }
       });
-      n.setName("Adult #" + m);
-      n.fork(); 
+      t.setName("Adult #" + i);
+      t.fork(); 
     }
 
-    for (int o = 0; o < children; o++) {
-      KThread p = new KThread(new Runnable() {
+    for (int i = 0; i < children; i++) {
+      KThread t = new KThread(new Runnable() {
         @Override
         public void run() {
           ChildItinerary();
         }
       });
-      p.setName("Child #" + o);
-      p.fork();
+      t.setName("Child #" + i);
+      t.fork();
     }
 
     communicator.listen();
@@ -92,50 +92,50 @@ public class Boat {
      */
     // b.initializeAdult();
 
-    incr.acquire();
+    incrLock.acquire();
     adultsOahu++;
-    incr.release();
+    incrLock.release();
 
-    catm.acquire();
-    cToMolokai.sleep();
-    catm.release();
+    catmLock.acquire();
+    childrenAllToMolokai.sleep();
+    catmLock.release();
     bg.AdultRowToMolokai();
     adultsOahu--;
-    cawc.acquire();
-    coordinator.wake();
-    cawc.release();
+    cawcLock.acquire();
+    comebackAndWakeCoordinator.wake();
+    cawcLock.release();
   }
 
   static void ChildItinerary() {
     // b.initializeChild();
 
-    incr.acquire();
+    incrLock.acquire();
     childrenOahu++;
-    incr.release();
+    incrLock.release();
 
     ThreadedKernel.alarm.waitUntil(500);
 
     while(true) {
-      boat.acquire();
-      if (!passenger && childrenOahu > 0) {
-        passenger = true;
+      boatLock.acquire();
+      if (!passengerTaken && childrenOahu > 0) {
+        passengerTaken = true;
         bg.ChildRideToMolokai();
         childrenOahu--;
         childrenMolokai++;
-        boat.release();
+        boatLock.release();
 
         while(true) {
-          cawc.acquire();
-          coordinator.sleep();
-          cawc.release();
+          cawcLock.acquire();
+          comebackAndWakeCoordinator.sleep();
+          cawcLock.release();
           bg.ChildRowToOahu();
-          ww.acquire();
-          wake.wake();
-          ww.release();
+          wwLock.acquire();
+          waitWake.wake();
+          wwLock.release();
           bg.ChildRideToMolokai();
         }
       } else {
-        passenger = false;
+        passengerTaken = false;
         bg.ChildRowToMolokai();
         childrenOahu--;
         childrenMolokai++;
@@ -143,18 +143,18 @@ public class Boat {
           bg.ChildRowToOahu();
           childrenMolokai--;
           childrenOahu++;
-          boat.release();
+          boatLock.release();
         } else {
           bg.ChildRowToOahu();
           childrenMolokai--;
           childrenOahu++;
           while(adultsOahu > 0) {
-            catm.acquire();
-            cToMolokai.wake();
-            catm.release();
-            ww.acquire();
-            wake.wake();
-            ww.release();
+            catmLock.acquire();
+            childrenAllToMolokai.wake();
+            catmLock.release();
+            wwLock.acquire();
+            waitWake.wake();
+            wwLock.release();
             bg.ChildRowToMolokai();
             bg.ChildRowToOahu();
           }
