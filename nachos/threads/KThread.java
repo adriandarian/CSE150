@@ -196,7 +196,11 @@ public class KThread {
 
     Lib.assertTrue(toBeDestroyed == null);
     toBeDestroyed = currentThread;
-
+    
+    if (currentThread.join_n_Thread != null)
+    {
+        currentThread.join_n_Thread.ready();
+    }
     currentThread.status = statusFinished;
 
     sleep();
@@ -275,8 +279,8 @@ public class KThread {
    * immediately. This method must only be called once; the second call is not
    * guaranteed to return. This thread must not be the current thread.
    */
-  public Lock joinLock = new Lock();
-  public Condition2 joinCondition = new Condition2(joinLock);
+  //public Lock joinLock = new Lock();
+  //public Condition2 joinCondition = new Condition2(joinLock);
 
   public void join() {
     Lib.debug(dbgThread, "Joining to thread: " + toString());
@@ -292,10 +296,16 @@ public class KThread {
     if (this.status == statusFinshed ) {
       return;
     }
+   
+    if (join_n_Thread = currentThread)
+    {
+      currentThread.join_n_Thread.sleep();
+    }
+    
     Machine.interrupt().restore(intStatus);
-    joinLock.acquire();
-    joinCondition.sleep();
-    joinLock.release();
+    //joinLock.acquire();
+    //joinCondition.sleep();
+    //joinLock.release();
   }
 
   /**
@@ -461,4 +471,5 @@ public class KThread {
   private static KThread currentThread = null;
   private static KThread toBeDestroyed = null;
   private static KThread idleThread = null;
+  private static KThread join_n_Thread = null;
 }
