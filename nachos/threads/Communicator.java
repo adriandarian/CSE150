@@ -76,9 +76,9 @@ public class Communicator {
     
     
     while((!message_in_use)||(wait_listeners > 0)){
-      if(speakers_Condition>0){
+     
         speakers_Condition.wake();
-      }
+   
         listeners_Condition.sleep();
     }
     
