@@ -446,6 +446,22 @@ public class UserProcess {
       Lib.assertNotReached("Unexpected exception");
     }
   }
+  
+  private int handleExec (int file, int argc, int argv)
+  { String filename = null;
+    filename = readVirtualMemoryString(file, 256);
+   
+   
+  
+  }//end handleExec
+  
+  
+  private int handleExit(int a0)
+  {
+  
+    machine.halt();
+    
+  }// end handleExit
 
   /** The program being run by this process. */
   protected Coff coff;
