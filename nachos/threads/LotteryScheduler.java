@@ -26,6 +26,9 @@ import java.util.Iterator;
  * Unlike a priority scheduler, these tickets add (as opposed to just taking the
  * maximum).
  */
+
+ public static final int priorityMinimum = 1;
+ public static final int priorityMaximum= Integer.MAX_VALUE;
 public class LotteryScheduler extends PriorityScheduler {
   /**
    * Allocate a new lottery scheduler.
@@ -41,7 +44,38 @@ public class LotteryScheduler extends PriorityScheduler {
    * @return a new lottery thread queue.
    */
   public ThreadQueue newThreadQueue(boolean transferPriority) {
-    // implement me
-    return null;
+      	return new PriorityQueue(transferPriority);
+  }
+
+  public boolean increasePriority(){
+    boolean status = Machine.interrupt().disabled();
+    KThread thread = KThread.currentThread();
+    int priority = getPriority(thread);
+    if(priority == priorityMaximum){
+      return false;
+    }else{
+      setPriority(thread, priority++);
+    }
+    Machine.interrupt().restore(status);
+    return true;
+  }
+  public boolean decreasePriority(){
+    boolean status = Machine.interrupt().disabled();
+    KThread thread = KThread.currentThread();
+    int priority = getPriority(thread);
+    if(priority == priorityMinimum){
+      return false;
+    }else{
+      setPriority(thread, priority--);
+    }
+    Machine.interrupt().restore(status);
+    return true;
+  }
+
+  public void setPriority(KThread thread, int priority){
+    Lib.assertTrue(Machine.interrupt().disabled());
+    if(decreasePriority() && increasePriority()){
+      getThreadState(thread).setPriority(priority);
+    }
   }
 }
