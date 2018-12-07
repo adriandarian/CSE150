@@ -410,6 +410,92 @@ public class UserProcess {
     }
     return 0;
   }
+  
+  private int handleJoin(int pid, int statusAddress) {
+	//  int bytesTransferred;
+	  UserProcess child = null;
+	  
+	  /*
+	  byte closeArray[] = new byte[4];
+	  Lib.bytesFromInt(stat, 0, child.status);
+	  int writtenBytes = writeVirtualMemory(statusAddress, stat);
+	  return (child.goodExit && writtenBytes == 4) ? 1 : 0;
+	  
+	  if (pid < 0 || statusAddress < 0) {
+		  return -1;
+	  }
+	  */
+	  
+	  for(int i = 0; i < children.size(); i++) {
+		 
+		  if children.get(i).pid == pid {
+			  child = children.get(i);
+			  break;
+		  }
+	  }
+	  
+	  if (child == null || child.myThread == null) {
+		  return -1;
+	  }
+	  
+	  	child.myThread.join();
+	  	
+	  	byte[] stat = new byte[4];
+	  	Lib.bytesFromInt(stat, 0, child.status);
+	  	int bytesWritten = writeVirtualMemory(statusAddress, stat);
+	  	return child.goodExit && bytesWritten == 4) ? 1 : 0;
+  }
+  
+  private int handleExec(int namePtr, int argc, int argv) {
+	  
+	  String filename = readVirtualMemoryString(namePtr, maxStrLength);
+	  
+	  if (argc < 0) {
+		  return -1;
+	  }
+	 
+	  String[] args = new String[argc];
+	  
+	  for(int i = 0; i < argc; i++) {
+		  byte[] memLocation = new byte[4];
+		  if (this.readVirtualMemory(argv + i * 4, memLocation) > 0) {
+			  args[i] = readVirtualMemoryString(Lib.bytesToInt(memLocation, 0), maxStrLength);
+		  }
+	  }
+	  
+	  UserProcess process = UserProcess.newUserProcess();
+	  
+	  if (!process.execute(fileName, args)) {
+		  return -1;
+	  }
+	    
+	  children.add(process);
+	  process.parent = this;
+	  return process.pid;
+	  
+  }
+  
+  private int handleExit(int status) {
+	  coff.close();
+	  
+	  for(int i = 0, i < fileTable.length; i++) {
+		  if (fileTable[i] != null) {
+			  fileTable[i].close();
+			  fileTable[i] = null;
+		  }
+	  }
+	  
+	  goodExit = true;
+	  
+	  if (parent != null) {
+		  parent.children.remove(this);
+	  }
+	  
+		  KThread.finish();
+		  unloadSections();
+	  
+		  return 0;
+  }
 
   /**
    * Handle a user exception. Called by <tt>UserKernel.exceptionHandler()</tt>.
@@ -452,4 +538,12 @@ public class UserProcess {
 
   private static final int pageSize = Processor.pageSize;
   private static final char dbgProcess = 'a';
+  
+  private int pid;
+  public KThread myThread;
+  public UserProcess parent = null;
+  public int status = 0;
+  private ArrayList<UserProcess> children = new ArrayList<UserProcess>();
+  public static int pidNums = 0;
+  public boolean goodExit = false;
 }
