@@ -51,12 +51,12 @@ public class LotteryScheduler extends PriorityScheduler {
 
   public KThread nextThread(){
     boolean intStatus = Machine.interrupt().disabled();
-
+      queueOwner = null;
     if(threads.isEmpty()){
       Machine.interrupt().restore(intStatus);
       return null;
     }
-
+    
     queueOwner = pickNextThread().thread;
 
     if(queueOwner != null)
@@ -75,7 +75,7 @@ public class LotteryScheduler extends PriorityScheduler {
     Random rand = new Random();
     roll = rand.nextInt(ticketSum() + 1);
 
-    for(int i = 0; i < threads.size(); i++){
+    for(int i = priorityMinimum; i < threads.size(); i++){
       KThread thread = threads.get(i);
       transferAmt += getThreadPriority(thread);
       if(transferAmt >= roll){
