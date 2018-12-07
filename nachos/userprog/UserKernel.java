@@ -213,7 +213,7 @@ public class UserKernel extends ThreadedKernel {
     private static Coff dummy1 = null;
 
     /** maintain a global linked list of free physical pages.      */
-    private static LinkedList<Integer> pageTable                   // @BBA
+    private static LinkedList<Integer> pageTable                   
                          = new LinkedList<Integer>();              // @BBA
     
     /** Maintain a static counter which indicates the next process ID
@@ -223,7 +223,7 @@ public class UserKernel extends ThreadedKernel {
 
     /** maintain a map which stores processes, key is pid,
      * value is the process which holds the pid.                   */
-    private static HashMap<Integer, UserProcess>                   // @BCA 
+    private static HashMap<Integer, UserProcess>                   
               processMap = new HashMap<Integer, UserProcess>();    // @BCA 
 
 }
