@@ -79,7 +79,7 @@ public class LotteryScheduler extends PriorityScheduler {
       KThread thread = (KThread) threads.get(i);
       transferAmt += getThreadPriority(thread);
       if(transferAmt >= roll){
-        return getThreadPriority(thread);
+        return getThreadState((KThread) threads.get(i));
       }
     }
 }
@@ -106,7 +106,7 @@ public class LotteryScheduler extends PriorityScheduler {
   }
 
 
-  public ThreadState getThreadPriority(KThread thread) {
+  public int getThreadPriority(KThread thread) {
     return getThreadState(thread).getPriority();
   }
 
