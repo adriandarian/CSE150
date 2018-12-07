@@ -161,7 +161,6 @@ public class UserKernel extends ThreadedKernel {
     return dProcess;
   }
 
-
   /** Globally accessible reference to the synchronized console. */
   public static SynchConsole console;
 
