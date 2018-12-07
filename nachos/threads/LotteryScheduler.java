@@ -69,7 +69,6 @@ public class LotteryScheduler extends PriorityScheduler {
   public ThreadState pickNextThread() {
     if(threads.isEmpty())
       return null;
-    ThreadState next;
     int roll, index;
     int transferAmt = 0;
     Random rand = new Random();
