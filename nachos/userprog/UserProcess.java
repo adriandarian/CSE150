@@ -22,6 +22,13 @@ public class UserProcess {
   /**
    * Allocate a new process.
    */
+  
+  private int pid;
+  private int p_pid;
+  private int thee_exit_status;
+  
+  
+  
   public UserProcess() {
     int numPhysPages = Machine.processor().getNumPhysPages();
     pageTable = new TranslationEntry[numPhysPages];
@@ -448,10 +455,29 @@ public class UserProcess {
   }
   
   private int handleExec (int file, int argc, int argv)
-  { String filename = null;
-    filename = readVirtualMemoryString(file, 256);
+  {
    
+   if (argc < 1)
+     return -1;
    
+   String filename = readVirtualMemoryString(file, 256);
+   if (filename == null)
+     return -1;
+
+   String suf_fix = filename.substring(filename.length() -5, filename.length());
+    if (suf_fix.equals(".coff") == false)
+      return -1;
+    
+   String args[] = new String(argc];
+                              for(int i = 0 i < argc; ++i){
+                              byte arg[] = new byte[4];
+                              int trans_size = readVirtualMemory(argv + i *4 , arg);
+                                if (trans_size != 4)
+                                  return -1;
+                               
+                                
+                              }
+                           
   
   }//end handleExec
   
