@@ -69,7 +69,7 @@ public class LotteryScheduler extends PriorityScheduler {
   public ThreadState pickNextThread() {
     if(threads.isEmpty())
       return null;
-
+    ThreadState next;
     int roll, index;
     int transferAmt = 0;
     Random rand = new Random();
@@ -79,7 +79,7 @@ public class LotteryScheduler extends PriorityScheduler {
       KThread thread = (KThread) threads.get(i);
       transferAmt += getThreadPriority(thread);
       if(transferAmt >= roll){
-       ThreadState next = getThreadState((KThread) threads.get(i));
+       next = getThreadState((KThread) threads.get(i));
        break;
       }
     }
