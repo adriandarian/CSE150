@@ -25,6 +25,7 @@ import java.util.*;
  * maximum).
  */
 
+
 public class LotteryScheduler extends PriorityScheduler {
   /**
    * Allocate a new lottery scheduler.
@@ -32,10 +33,10 @@ public class LotteryScheduler extends PriorityScheduler {
   public LotteryScheduler() {
   }
 
-  /* Global bounds for priority */
+  /*Global bounds for priority*/
   public static final int priorityDefault = 1;
   public static final int priorityMinimum = 1;
-  public static final int priorityMaximum = Integer.MAX_VALUE;
+  public static final int priorityMaximum= Integer.MAX_VALUE;
 
   /**
    * Allocate a new lottery thread queue.
@@ -45,20 +46,20 @@ public class LotteryScheduler extends PriorityScheduler {
    * @return a new lottery thread queue.
    */
   public ThreadQueue newThreadQueue(boolean transferPriority) {
-    return new PriorityQueue(transferPriority);
+      	return new PriorityQueue(transferPriority);
   }
 
-  public KThread nextThread() {
+  public KThread nextThread(){
     boolean intStatus = Machine.interrupt().disabled();
-    queueOwner = null;
-    if (threads.isEmpty()) {
+      queueOwner = null;
+    if(threads.isEmpty()){
       Machine.interrupt().restore(intStatus);
       return null;
     }
-
+    
     queueOwner = pickNextThread().thread;
 
-    if (queueOwner != null)
+    if(queueOwner != null)
       acquire(queueOwner);
 
     Machine.interrupt().restore(intStatus);
@@ -66,30 +67,29 @@ public class LotteryScheduler extends PriorityScheduler {
   }
 
   public ThreadState pickNextThread() {
-    if (threads.isEmpty())
+    if(threads.isEmpty())
       return null;
-    ThreadState next;
     int roll, index;
     int transferAmt = 0;
     Random rand = new Random();
     roll = rand.nextInt(ticketSum() + 1);
 
-    for (int i = priorityMinimum; i < threads.size(); i++) {
+    for(int i = priorityMinimum; i < threads.size(); i++){
       KThread thread = (KThread) threads.get(i);
       transferAmt += getThreadPriority(thread);
-      if (transferAmt >= roll) {
-        next = getThreadState((KThread) threads.get(i));
-        break;
+      if(transferAmt >= roll){
+       next = getThreadState((KThread) threads.get(i));
+       break;
       }
     }
     return next;
-  }
+}
 
-  public int ticketSum() {
-    /* amount of tickets to be transferred */
+  public int ticketSum(){
+    /* amount of tickets to be transferred*/
     int transferAmt = 0;
 
-    for (int i = 0; i < threads.size(); i++) {
+    for(int i = 0; i < threads.size(); i++){
       KThread thread = (KThread) threads.get(i);
       transferAmt += getThreadPriority(thread);
       enforcePriorityBounds(transferAmt);
@@ -98,57 +98,58 @@ public class LotteryScheduler extends PriorityScheduler {
     return transferAmt;
   }
 
-  /* Ensures priority Min/Max aren't passed */
+  /*Ensures priority Min/Max aren't passed*/
   public void enforcePriorityBounds(int priority) {
-    if (priority < priorityMinimum)
+    if(priority < priorityMinimum)
       priority = priorityMinimum;
-    else if (priority > priorityMaximum)
+    else if(priority > priorityMaximum)
       priority = priorityMaximum;
   }
+
 
   public int getThreadPriority(KThread thread) {
     return getThreadState(thread).getPriority();
   }
 
-  public void acquire(KThread thread) {
+  public void acquire(KThread thread){
     threads.remove(thread);
     acqThreads.add(thread);
   }
-
   public boolean increasePriority() {
     boolean intStatus = Machine.interrupt().disabled();
     KThread thread = KThread.currentThread();
     int priority = getPriority(thread);
-    if (priority == priorityMaximum) {
+    if(priority == priorityMaximum){
       return false;
-    } else {
+    }else{
       setPriority(thread, priority++);
     }
     Machine.interrupt().restore(intStatus);
     return true;
   }
 
+
   public boolean decreasePriority() {
     boolean intStatus = Machine.interrupt().disabled();
     KThread thread = KThread.currentThread();
     int priority = getPriority(thread);
-    if (priority == priorityMinimum) {
+    if(priority == priorityMinimum){
       return false;
-    } else {
+    }else{
       setPriority(thread, priority--);
     }
     Machine.interrupt().restore(intStatus);
     return true;
   }
 
-  public void setPriority(KThread thread, int priority) {
+  public void setPriority(KThread thread, int priority){
     Lib.assertTrue(Machine.interrupt().disabled());
-    if (decreasePriority() && increasePriority()) {
+    if(decreasePriority() && increasePriority()){
       getThreadState(thread).setPriority(priority);
     }
   }
-
+  protected ThreadState next;
   protected KThread queueOwner;
-  protected LinkedList<KThread> acqThreads = new LinkedList(); // "acquired" threads
+  protected LinkedList<KThread> acqThreads = new LinkedList(); //"acquired" threads
   protected LinkedList<KThread> threads = new LinkedList();// all threads
 }
