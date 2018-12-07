@@ -4,6 +4,10 @@ import nachos.machine.*;
 import nachos.threads.*;
 import nachos.userprog.*;
 
+import java.util.LinkedList;
+import java.util.Iterator;
+import java.util.HashMap;
+
 /**
  * A kernel that can support multiple user processes.
  */
@@ -29,6 +33,11 @@ public class UserKernel extends ThreadedKernel {
         exceptionHandler();
       }
     });
+
+    int numberOfPages = Machine.processor().getNumPhysPages();
+    for (int n = 0; n < numberOfPages; n++) {
+      UserTable.add(n);
+    }
   }
 
   /**
@@ -107,9 +116,58 @@ public class UserKernel extends ThreadedKernel {
     super.terminate();
   }
 
+  public static int getPage() {
+    int page = -1;
+    Machine.interrupt().disable();
+    if (UserTable.isEmpty() == false) {
+      page = UserTable.removeFirst();
+    }
+    Machine.interrupt().enable();
+    return page;
+  }
+
+  public static void addPage(int page) {
+    Lib.assertTrue(page >= 0 && page < Machine.processor().getNumPhysPages());
+    Machine.interrupt().disable();
+    UserTable.add(page);
+    Machine.interrupt().enable();
+  }
+
+  public static int getPID() {
+    int val;
+    Machine.interrupt().disable();
+    val = ++userPid;
+    Machine.interrupt().enabled();
+    return userPid;
+  }
+
+  public static UserProcess getProcess(int process) {
+    return userProcMap.get(process);
+  }
+
+  public static UserProcess regProcess(int pid, UserProces process) {
+    UserProcess iProcess;
+    Machine.interrupt().disable();
+    iProcess = userProcMap.put(pid, process);
+    Machine.interrupt().enabled();
+    return iProcess;
+  }
+
+  public static UserProcess unregProcess(int process) {
+    UserProcess dProcess;
+    Machine.interrupt.disable();
+    dProcess = userProcMap.remove(process);
+    Machine.interrupt().enabled();
+    return dProcess;
+  }
+
+
   /** Globally accessible reference to the synchronized console. */
   public static SynchConsole console;
 
   // dummy variables to make javac smarter
   private static Coff dummy1 = null;
+  private static LinkedList<Integer> UserTable = new LinkedList<Integer>();
+  private static int userPid = 0;
+  private static HashMap<Integer, UserProcess> userProcMap = new HashMap<Integer, UserProcess>();
 }
