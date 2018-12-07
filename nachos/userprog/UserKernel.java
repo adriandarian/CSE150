@@ -155,7 +155,7 @@ public class UserKernel extends ThreadedKernel {
 
   public static UserProcess unregProcess(int process) {
     UserProcess dProcess;
-    Machine.interrupt.disable();
+    Machine.interrupt().disable();
     dProcess = userProcMap.remove(process);
     Machine.interrupt().enabled();
     return dProcess;
