@@ -410,6 +410,90 @@ public class UserProcess {
     }
     return 0;
   }
+  
+  private int handleJoin(int pid, int statusAddress) {
+	  int bytesTransferred;
+	  UserProcess child = null;
+	  
+	  byte closeArray[] = new byte[4];
+	  Lib.bytesFromInt(stat, 0, child.status);
+	  int writtenBytes = writeVirtualMemory(statusAddress, stat);
+	  return (child.goodExit && writtenBytes == 4) ? 1 : 0;
+	  
+	  if (pid < 0 || statusAddress < 0) {
+		  return -1;
+	  }
+	  
+	  if (child == null || child.myThread == null)
+		  return -1;
+	  	child.myThread.join();
+	  
+	  for(int i = 0; i < children.size(); i++) {
+		 
+		  if children.get(i).pid == pid {
+			  child = children.get(i);
+			  break;
+		  }
+	  }  
+  }
+  
+  private int handleExec(int namePtr, int argc, int argv) {
+	  int address;
+	  int bytesAcquired;
+	  
+	  String filename = readVirtualMemoryString(namePtr, maxStrLength);
+	  
+	  if (argc < 0 || filename == null || namePtr < 0 || argv <0) {
+		  return -1;
+	  }
+	 
+	  String strArray[] = new String[argc]
+	  byte tempArray[] = new byte[4];
+	  
+	  for(int i = 0; i < argc; i++) {
+		  bytesAcquired = readVirtualMemoryString(argv + i * 4, tempArray);
+		  if (bytesAcquired < 4 || bytesAcquired > 4) {
+			return -1;  
+		  }
+		  
+		  address = Lib.bytesToInt(tempArray, 0);
+		  strArray[i] = readVirtualMemoryString(address, 256);
+		  
+		  if(strArray[i] == null) {
+			  return -1;
+		  }
+		  
+	  }
+	  
+	  UserProcess process = UserProcess.newUserProcess();
+	  if (!process.execute(fileName, args)) {
+		  return -1;
+	  }
+		  
+	  children.add(process);
+	  process.parent = this;
+	  return process.pid;
+	  
+  }
+  
+  private int handleExit(int status) {
+	  coff.close();
+	  
+	  for(int i = 0, i < fileTable.length; i++) {
+		  if (fileTable[i] != null) {
+			  fileTable[i].close();
+			  fileTable[i] = null;
+		  }
+	  }
+	  
+	  if (this.random == root) {
+		  Kernel.kernel.terminate();
+	  }
+	  else {
+		  KThread.finish();
+		  Lib.assertNotReached();
+	  }
+  }
 
   /**
    * Handle a user exception. Called by <tt>UserKernel.exceptionHandler()</tt>.
@@ -452,4 +536,11 @@ public class UserProcess {
 
   private static final int pageSize = Processor.pageSize;
   private static final char dbgProcess = 'a';
+  
+  private int pid;
+  public KThread myThread;
+  public UserProcess parent = null;
+  public int status = 0;
+  private ArrayList<UserProcess> children = new ArrayList<UserProcess>();
+  
 }
