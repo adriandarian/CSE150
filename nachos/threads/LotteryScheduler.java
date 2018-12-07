@@ -76,10 +76,10 @@ public class LotteryScheduler extends PriorityScheduler {
     roll = rand.nextInt(ticketSum() + 1);
 
     for(int i = priorityMinimum; i < threads.size(); i++){
-      KThread thread = threads.get(i);
+      KThread thread = (KThread) threads.get(i);
       transferAmt += getThreadPriority(thread);
       if(transferAmt >= roll){
-        return getThreadState(thread);
+        return getThreadPriority(thread);
       }
     }
 }
@@ -89,7 +89,7 @@ public class LotteryScheduler extends PriorityScheduler {
     int transferAmt = 0;
 
     for(int i = 0; i < threads.size(); i++){
-      KThread thread = threads.get(i);
+      KThread thread = (KThread) threads.get(i);
       transferAmt += getThreadPriority(thread);
       enforcePriorityBounds(transferAmt);
     }
@@ -112,7 +112,7 @@ public class LotteryScheduler extends PriorityScheduler {
 
   public void acquire(KThread thread){
     threads.remove(thread);
-    acqThreads.add(thread)
+    acqThreads.add(thread);
   }
   public boolean increasePriority() {
     boolean intStatus = Machine.interrupt().disabled();
