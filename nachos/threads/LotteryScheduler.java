@@ -149,6 +149,7 @@ public class LotteryScheduler extends PriorityScheduler {
       getThreadState(thread).setPriority(priority);
     }
   }
+  protected ThreadState next;
   protected KThread queueOwner;
   protected LinkedList<KThread> acqThreads = new LinkedList(); //"acquired" threads
   protected LinkedList<KThread> threads = new LinkedList();// all threads
