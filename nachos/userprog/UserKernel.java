@@ -145,7 +145,7 @@ public class UserKernel extends ThreadedKernel {
     return userProcMap.get(process);
   }
 
-  public static UserProcess regProcess(int pid, UserProces process) {
+  public static UserProcess regProcess(int pid, UserProcess process) {
     UserProcess iProcess;
     Machine.interrupt().disable();
     iProcess = userProcMap.put(pid, process);
