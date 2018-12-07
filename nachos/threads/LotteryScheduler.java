@@ -106,7 +106,7 @@ public class LotteryScheduler extends PriorityScheduler {
   }
 
 
-  public int getThreadPriority(KThread thread) {
+  public ThreadState getThreadPriority(KThread thread) {
     return getThreadState(thread).getPriority();
   }
 
