@@ -140,24 +140,23 @@ public class PriorityScheduler extends Scheduler {
 			if (this.holder != null && this.transferPriority) {
 				this.holder.myResource.remove(this);
 			}
-			this.hold = state;
+			this.holder = state;
 			state.acquire(this);
 		}
 
 		public KThread nextThread() {
 			Lib.assertTrue(Machine.interrupt().disabled());
-			if (pQueue.isEmpty()) {
+			if (waitQueue.isEmpty())
 				return null;
-			}
 			if (this.holder != null && this.transferPriority) {
 				this.holder.myResource.remove(this);
 			}
-			KThread ThreadOne = pickNextThread();
-			if (ThreadOne != null) {
-				pQueue.remove(ThreadOne);
-				getThreadState(ThreadOne).acquire(this);
+			KThread firstThread = pickNextThread();
+			if (firstThread != null) {
+				waitQueue.remove(firstThread);
+				getThreadState(firstThread).acquire(this);
 			}
-			return ThreadOne;
+			return firstThread;
 		}
 
 		/**
@@ -167,10 +166,10 @@ public class PriorityScheduler extends Scheduler {
 		 * @return the next thread that <tt>nextThread()</tt> would return.
 		 */
 
-		protected ThreadState pickNextThread() {
+		protected KThread pickNextThread() {
 			KThread nextThread = null;
-			for (Iterator<KThread> n = pQueue.iterator(); n.hasNext();) {
-				KThread thread = n.next();
+			for (Iterator<KThread> ts = waitQueue.iterator(); ts.hasNext();) {
+				KThread thread = ts.next();
 				int priority = getThreadState(thread).getEffectivePriority();
 				if (nextThread == null || priority > getThreadState(nextThread).getEffectivePriority()) {
 					nextThread = thread;
@@ -186,7 +185,7 @@ public class PriorityScheduler extends Scheduler {
 
 			if (dirty) {
 				effectivePriority = priorityMinimum;
-				for (Iterator<KThread> it = pQueue.iterator(); it.hasNext();) {
+				for (Iterator<KThread> it = waitQueue.iterator(); it.hasNext();) {
 					Kthread thread = it.next();
 					int priority = getThreadState(thread).getEffectivePriority();
 					if (priority > effectivePriority) {
@@ -221,7 +220,7 @@ public class PriorityScheduler extends Scheduler {
 		 * the owning thread.
 		 */
 		public boolean transferPriority;
-		private LinkedList<KThread> pQueue = new LinkedList<KThread>();
+		private LinkedList<KThread> waitQueue = new LinkedList<KThread>();
 		private ThreadState holder = null;
 		private int effectivePriority;
 		private boolean dirty;
@@ -300,9 +299,9 @@ public class PriorityScheduler extends Scheduler {
 		 */
 		public void waitForAccess(PriorityQueue waitQueue) {
 			Lib.assertTrue(Machine.interrupt().disabled());
-			Lib.assertTrue(waitQueue.waitQueue.indexOf(thread) == -1);
+			Lib.assertTrue(waitQueue.indexOf(thread) == -1);
 
-			waitQueue.waitQueue.add(thread);
+			waitQueue.add(thread);
 			waitQueue.setDirty();
 			waitingOn = waitQueue;
 			if (myResource.indexOf(waitQueue) != -1) {
