@@ -458,7 +458,7 @@ public class UserProcess {
 	  
 	  for(int i = 0; i < children.size(); i++) {
 		 
-		  if children.get(i).pid == pid {
+		  if (children.get(i).pid == pid) {
 			  child = children.get(i);
 			  break;
 		  }
@@ -475,7 +475,7 @@ public class UserProcess {
 		  return -1;
 	  }
 	 
-	  String strArray[] = new String[argc]
+	  String strArray[] = new String[argc];
 	  byte tempArray[] = new byte[4];
 	  
 	  for(int i = 0; i < argc; i++) {
@@ -507,7 +507,7 @@ public class UserProcess {
   private int handleExit(int status) {
 	  coff.close();
 	  
-	  for(int i = 0, i < fileTable.length; i++) {
+	  for(int i = 0, i < fileTable.length, i++) {
 		  if (fileTable[i] != null) {
 			  fileTable[i].close();
 			  fileTable[i] = null;
