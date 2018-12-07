@@ -410,7 +410,7 @@ public class UserProcess {
     }
     return 0;
   }
-  
+
   private int handleJoin(int pid, int statusAddress) {
 	//  int bytesTransferred;
 	  UserProcess child = null;
@@ -445,36 +445,36 @@ public class UserProcess {
 	  	int bytesWritten = writeVirtualMemory(statusAddress, stat);
 	  	return child.goodExit && bytesWritten == 4) ? 1 : 0;
   }
-  
+
   private int handleExec(int namePtr, int argc, int argv) {
-	  
-	  String filename = readVirtualMemoryString(namePtr, maxStrLength);
-	  
-	  if (argc < 0) {
-		  return -1;
-	  }
-	 
-	  String[] args = new String[argc];
-	  
-	  for(int i = 0; i < argc; i++) {
-		  byte[] memLocation = new byte[4];
-		  if (this.readVirtualMemory(argv + i * 4, memLocation) > 0) {
-			  args[i] = readVirtualMemoryString(Lib.bytesToInt(memLocation, 0), maxStrLength);
-		  }
-	  }
-	  
-	  UserProcess process = UserProcess.newUserProcess();
-	  
-	  if (!process.execute(fileName, args)) {
-		  return -1;
-	  }
-	    
-	  children.add(process);
-	  process.parent = this;
-	  return process.pid;
-	  
+
+    String filename = readVirtualMemoryString(namePtr, maxStrLength);
+
+    if (argc < 0) {
+      return -1;
+    }
+
+    String[] args = new String[argc];
+
+    for (int i = 0; i < argc; i++) {
+      byte[] memLocation = new byte[4];
+      if (this.readVirtualMemory(argv + i * 4, memLocation) > 0) {
+        args[i] = readVirtualMemoryString(Lib.bytesToInt(memLocation, 0), maxStrLength);
+      }
+    }
+
+    UserProcess process = UserProcess.newUserProcess();
+
+    if (!process.execute(fileName, args)) {
+      return -1;
+    }
+
+    children.add(process);
+    process.parent = this;
+    return process.pid;
+
   }
-  
+
   private int handleExit(int status) {
 	  coff.close();
 	  
@@ -538,7 +538,7 @@ public class UserProcess {
 
   private static final int pageSize = Processor.pageSize;
   private static final char dbgProcess = 'a';
-  
+
   private int pid;
   public KThread myThread;
   public UserProcess parent = null;
