@@ -23,9 +23,6 @@ public class Boat {
   static Communicator reporter = new Communicator();
 
   public static void selfTest() {
-    BoatGrader b = new BoatGrader();
-    System.out.println("\n***Testing Boats with VARs***");
-    begin(100, 50, b);
   }
 
   public static void begin(int adults, int children, BoatGrader b) {
